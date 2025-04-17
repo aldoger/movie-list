@@ -11,6 +11,7 @@ export interface User extends Document {
 
 const userSchema = new Schema<User>({
     email: { type: String, required: true, immutable: true, unique: true },
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["admin", "user"], required: true },
     displayname: { type: String, required: false },

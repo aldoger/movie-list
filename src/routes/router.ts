@@ -1,7 +1,8 @@
 import { Request, Response, Router } from "express";
 import addGenre from "../handlers/genreController";
 import addFilm from "../handlers/filmControlller";
-import { signIn } from "../handlers/userController";
+import { logIn, signIn } from "../handlers/userController";
+import { roleAdminCheck } from "../middleware/auth";
 
 
 
@@ -12,7 +13,7 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 //genre route
-router.post("/add-genre", addGenre);
+router.post("/add-genre", roleAdminCheck, addGenre);
 
 
 //film route
@@ -20,6 +21,7 @@ router.post("/add-film", addFilm);
 
 //user route
 router.post("/signin", signIn);
+router.post("/login", logIn);
 
 
 export default router;
