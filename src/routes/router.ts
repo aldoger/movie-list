@@ -1,6 +1,8 @@
 import { Request, Response, Router } from "express";
 import addGenre from "../handlers/genreController";
 import addFilm from "../handlers/filmControlller";
+import { signIn } from "../handlers/userController";
+
 
 
 const router = Router();
@@ -17,7 +19,7 @@ router.post("/add-genre", addGenre);
 router.post("/add-film", addFilm);
 
 //user route
-router.post("/signin");
-router.post("/login")
+router.post("/signin", signIn);
+
 
 export default router;
