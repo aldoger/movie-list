@@ -12,3 +12,4 @@ const genreSchema = new Schema<Genre>({
 const genre = model<Genre>("Genre", genreSchema);
 
 export default genre;
+

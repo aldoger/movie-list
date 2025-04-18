@@ -67,7 +67,7 @@ export async function logIn(req: Request<any, any, userLogInDto>, res: Response)
 
             if(verifyPasword){
 
-                const token = jwt.sign({username: User.username, role: User.role}, process.env.SECRET_KEY as string, {
+                const token = jwt.sign({username: User.username, role: User.role, userId: User._id}, process.env.SECRET_KEY as string, {
                     expiresIn: '1h',
                     algorithm: 'HS256',
 

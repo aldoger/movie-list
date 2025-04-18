@@ -18,10 +18,12 @@ export function roleAdminCheck(req: Request, res: Response, next: NextFunction) 
     try {
         const decoded = jwt.verify(token, process.env.SECRET_KEY as string) as JWTPayload;
 
+        console.log("UserId:", decoded.userId);
         console.log("Username:", decoded.username);
         console.log("Role:", decoded.role);
 
         if(decoded.role == "admin"){
+            (req as any).userId = decoded.userId;
             next();
         }else{
             res.status(401).json({ msg: "Unauthorized"});
@@ -48,10 +50,13 @@ export function roleUserCheck(req: Request, res: Response, next: NextFunction) {
     try {
         const decoded = jwt.verify(token, process.env.SECRET_KEY as string) as JWTPayload;
 
+        console.log("UserId: ", decoded.userId);
         console.log("Username:", decoded.username);
         console.log("Role:", decoded.role);
 
+        
         if(decoded.role == "admin" || decoded.role == "user"){
+            (req as any).userId = decoded.userId;
             next();
         }else{
             res.status(401).json({ msg: "Unauthorized"});
