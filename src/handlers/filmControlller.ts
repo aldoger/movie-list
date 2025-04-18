@@ -105,9 +105,14 @@ export async function addFilmToList(req: Request<any, any, addFilmToListDto>, re
       return;
     }
 
-  } catch (err) {
-    console.error("Error decoding token:", err);
-    res.status(403).json({ msg: "Invalid token" });
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error("Unknown error", e);
+    }
+    res.status(500).json({ msg: "Something went wrong" });
+    return;
   }
 }
 
@@ -135,8 +140,13 @@ export async function editStatusFilmList(req: Request<any, any, editFilmListStat
       return;
     }
 
-  } catch (err) {
-    console.error("Error decoding token:", err);
-    res.status(403).json({ msg: "Invalid token" });
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error("Unknown error", e);
+    }
+    res.status(500).json({ msg: "Something went wrong" });
+    return;
   }
 }

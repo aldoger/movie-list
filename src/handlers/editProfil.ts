@@ -2,29 +2,14 @@ import { Request, Response } from "express";
 import { editProfileDto } from "../dto/editProfil.dto";
 import user from "../Model/user";
 import { ObjectId } from "mongoose";
-import jwt from "jsonwebtoken";
 
 
 export async function editProfile(req: Request<any, any, editProfileDto>, res: Response) {
     const { bio, display_name, username } = req.body;
-    const authHeader = req.headers['authorization'];
-
-    if (!authHeader) {
-      return res.status(401).json({ msg: "No authorization header provided" });
-    }
-  
-  
-    const token = authHeader.split(' ')[1];
+    const id = (req as any).userId as ObjectId
 
     try{
 
-        const decoded = jwt.verify(token, process.env.SECRET_KEY as string) as { userId: ObjectId };
-        
-        if (!decoded || !decoded.userId) {
-          return res.status(401).json({ msg: "Invalid token or userId" });
-        }
-        
-        const id = decoded.userId;
         const User = await user.findById(id).exec();
 
         if(User){

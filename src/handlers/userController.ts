@@ -4,6 +4,7 @@ import { userLogInDto } from "../dto/userLogIn.dto";
 import user from "../Model/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { ObjectId } from "mongoose";
 
 
 export async function signIn(req: Request<any, any, userSignInDto>, res: Response) {
@@ -94,3 +95,25 @@ export async function logIn(req: Request<any, any, userLogInDto>, res: Response)
 
 }
 
+
+export async function getUserById(req: Request, res: Response) {
+    const id = (req as any).userId as ObjectId;
+
+    try{
+        const User = await user.findById(id).exec();
+        if(User){
+            res.status(200).json( { User });
+            return;
+        }else{
+            res.status(400).json({ msg: "Cannot found user"});
+        }
+    }catch (e: unknown) {
+        if (e instanceof Error) {
+          console.error(e.message);
+        } else {
+          console.error("Unknown error", e);
+        }
+        res.status(500).json({ msg: "Something went wrong" });
+        return;
+      }
+}

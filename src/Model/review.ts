@@ -1,13 +1,19 @@
-import { Document, Schema, SchemaTypes } from "mongoose";
-import { Likes } from "./likes";
+import { Document, model, ObjectId, Schema, SchemaTypes } from "mongoose";
 import { User } from "./user";
 import { Film_List } from "./film_list";
+
+
+export interface Likes {
+    user_id: ObjectId;
+    status: "like" | "dislike";
+}
+
 
 export interface Review extends Document {
     user_id: User;
     movie_list_id: Film_List;
     rating: number;
-    review: string;
+    reviewText: string;
     likes: Likes[];
 }
 
@@ -20,8 +26,18 @@ const reviewSchema = new Schema<Review>({
         min: 0,
         max: 10, 
     },
-    review: { type: String, required: true },
-    likes: [{ type: SchemaTypes.ObjectId, ref: "Likes" }], 
+    reviewText: { type: String, required: true },
+    likes: {
+        type: [
+            {
+                user_id: { type: SchemaTypes.ObjectId, required: true },
+                status: { type: String, enum: ["like", "dislike"], required: true },
+            },
+        ],
+        default: [],
+    }
 });
 
-export default reviewSchema;
+const review = model<Review>("Review", reviewSchema);
+
+export default review;
