@@ -5,6 +5,8 @@ import { addFilmToListDto } from "../dto/addFilmToList.dto";
 import filmList from "../Model/film_list";
 import { editFilmListStatusDto } from "../dto/editFilmListStatus.dto";
 import { ObjectId } from "mongoose";
+import review from "../Model/review";
+import { advanceSearchFilmDto, getDetailedFilmDto } from "../dto/getDetailedFilm.dto";
 
 export async function addFilm(
   req: Request<any, any, addFilmDto>,
@@ -45,14 +47,48 @@ export async function addFilm(
 
 export async function getFilm(req: Request, res: Response) {
   try {
-    const Films = await film.find({});
+  
+    const films = await film.find({}, 'title status total_episode release_date _id');
 
-    if (Films.length > 0) {
-      res.status(200).json({ films: Films });
-      return;
+
+    const reviews = await review.find({}, 'rating movie_id');
+
+    
+    const ratingMap: Record<string, { total: number, count: number }> = {};
+
+    reviews.forEach(({ movie_id, rating }) => {
+      const id = movie_id.toString();
+      if (!ratingMap[id]) {
+        ratingMap[id] = { total: 0, count: 0 };
+      }
+      ratingMap[id].total += rating;
+      ratingMap[id].count += 1;
+    });
+
+    const avgRatingMap: Record<string, number> = {};
+    for (const id in ratingMap) {
+      const { total, count } = ratingMap[id];
+      avgRatingMap[id] = total / count;
+    }
+
+    const combinedFilms = [];
+
+    for (let i = 0; i < films.length; i++) {
+      const filmObj = films[i];
+      const filmId = filmObj._id as string;
+      const avgRating = avgRatingMap[filmId] || null;
+    
+      combinedFilms.push({
+        ...filmObj.toObject(),
+        avgRating
+      });
+    }
+
+    
+    if (combinedFilms.length > 0) {
+      res.status(200).json({ films: combinedFilms });
     } else {
       res.status(400).json({ msg: "No films yet" });
-      return;
     }
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -61,9 +97,58 @@ export async function getFilm(req: Request, res: Response) {
       console.error("Unknown error", e);
     }
     res.status(500).json({ msg: "Something went wrong" });
-    return;
   }
 }
+
+export async function getDetailedFilm(req: Request<any, any, getDetailedFilmDto>, res: Response) {
+  const movieName = req.query.movie_name;
+  try {
+    const movie = await film.findOne({ title: movieName });
+
+    if (!movie) {
+      res.status(404).json({ msg: "Movie not found" });
+      return;
+    }
+
+    const movieReviews = await review.find({ movie_id: movie._id });
+
+    const totalRating = movieReviews.reduce((sum, review) => {
+      return sum + review.rating;
+    }, 0);
+
+    const averageRating = movieReviews.length > 0 
+      ? totalRating / movieReviews.length 
+      : null;
+
+    res.status(200).json({
+      movie,
+      averageRating,
+      reviews: movieReviews
+    });
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error("Unknown error", e);
+    }
+    res.status(500).json({ msg: "Something went wrong" });
+  }
+}
+
+export async function advanceSearchFilm(req: Request<any, any, advanceSearchFilmDto>, res: Response) {
+  try{
+
+  }catch(e: unknown){
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error("Unknown error", e);
+    }
+    res.status(500).json({ msg: "Something went wrong" });
+  }
+}
+
+
 
 export async function addFilmToList(req: Request<any, any, addFilmToListDto>, res: Response) {
   const { movie_id, status } = req.body;

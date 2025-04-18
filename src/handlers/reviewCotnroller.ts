@@ -26,9 +26,9 @@ export async function addFilmReview(req: Request<any, any, editReviewDto>, res: 
 
         const movieList = await filmList.findById(movie_list_id).exec();
 
-        const movieStatus = await film.findById(movieList?.movie_id).exec();
+        const Movie = await film.findById(movieList?.movie_id).exec();
 
-        if(movieStatus?.status == "not_yet_aired"){
+        if(Movie?.status == "not_yet_aired"){
             res.status(400).json({ msg: "Cannot review a movie that has not aired"});
             return;
         }
@@ -39,9 +39,11 @@ export async function addFilmReview(req: Request<any, any, editReviewDto>, res: 
             return;
         }
 
+
         const newReview = new review({
             user_id: user_id,
             movie_list_id: movie_list_id,
+            movie_id: Movie?._id,
             reviewText: reviewText,
             rating: rating,
         });

@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { addGenre } from "../handlers/genreController";
-import { addFilm, addFilmToList, getFilm } from "../handlers/filmControlller";
+import { addFilm, addFilmToList, getDetailedFilm, getFilm } from "../handlers/filmControlller";
 import { logIn, signIn } from "../handlers/userController";
 import { roleAdminCheck, roleUserCheck } from "../middleware/auth";
 import { addFilmReview, editFilmReview } from "../handlers/reviewCotnroller";
@@ -21,6 +21,7 @@ router.post("/add-genre", roleAdminCheck, addGenre);
 router.post("/add-film", roleAdminCheck, addFilm);
 router.post("/add-list", roleUserCheck, addFilmToList);
 router.get("/get-film", getFilm);
+router.get("/get-detail-film", getDetailedFilm)
 
 //review route
 router.post("/add-review", roleUserCheck, addFilmReview)

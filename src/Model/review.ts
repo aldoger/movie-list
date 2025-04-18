@@ -1,6 +1,7 @@
 import { Document, model, ObjectId, Schema, SchemaTypes } from "mongoose";
 import { User } from "./user";
 import { Film_List } from "./film_list";
+import { Film } from "./film";
 
 
 export interface Likes {
@@ -12,6 +13,7 @@ export interface Likes {
 export interface Review extends Document {
     user_id: User;
     movie_list_id: Film_List;
+    movie_id: Film;
     rating: number;
     reviewText: string;
     likes: Likes[];
@@ -20,6 +22,7 @@ export interface Review extends Document {
 const reviewSchema = new Schema<Review>({
     user_id: { type: SchemaTypes.ObjectId, ref: "User", required: true },
     movie_list_id: { type: SchemaTypes.ObjectId, ref: "Film-List", required: true },
+    movie_id: { type: Schema.ObjectId, ref: "Film", required: true },
     rating: {
         type: Number,
         required: true,
