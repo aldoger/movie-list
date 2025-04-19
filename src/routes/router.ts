@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { addGenre } from "../handlers/genreController";
 import { addFilm, addFilmToList, getDetailedFilm, getFilm } from "../handlers/filmControlller";
-import { logIn, signIn } from "../handlers/userController";
+import { getAllUser, getUserById, getUserProfile, logIn, signIn } from "../handlers/userController";
 import { roleAdminCheck, roleUserCheck } from "../middleware/auth";
 import { addFilmReview, editFilmReview } from "../handlers/reviewCotnroller";
 import { likeReview } from "../handlers/likeController";
@@ -33,6 +33,9 @@ router.post("/like-review", roleUserCheck, likeReview);
 //user route
 router.post("/signin", signIn);
 router.post("/login", logIn);
+router.get("/my-profile", roleUserCheck, getUserById);
+router.get("/user-profile", getUserProfile);
+router.get("/users", getAllUser);
 
 
 export default router;

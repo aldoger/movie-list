@@ -1,10 +1,12 @@
 import {  Request, Response } from "express";
 import { userSignInDto } from "../dto/userSignIn.dto";
 import { userLogInDto } from "../dto/userLogIn.dto";
-import user from "../Model/user";
+import user, { User } from "../Model/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongoose";
+import { getUserProfileDto } from "../dto/getUserProfile.dto";
+import review, { Review } from "../Model/review";
 
 
 export async function signIn(req: Request<any, any, userSignInDto>, res: Response) {
@@ -100,7 +102,7 @@ export async function getUserById(req: Request, res: Response) {
     const id = (req as any).userId as ObjectId;
 
     try{
-        const User = await user.findById(id).exec();
+        const User = await user.findById(id);
         if(User){
             res.status(200).json( { User });
             return;
@@ -116,4 +118,59 @@ export async function getUserById(req: Request, res: Response) {
         res.status(500).json({ msg: "Something went wrong" });
         return;
       }
+}
+
+
+export async function getAllUser(req: Request, res: Response){
+    try{
+        const users = await user.find({}, '_id username displayname bio');
+
+        if(users.length > 0){
+            res.status(200).json({ users: users});
+            return;
+        }else{
+            res.status(400).json({ msg: "No users found"});
+            return;
+        }
+    }catch(e: unknown){
+        if (e instanceof Error) {
+            console.error(e.message);
+          } else {
+            console.error("Unknown error", e);
+          }
+          res.status(500).json({ msg: "Something went wrong" });
+          return;
+    }
+}
+
+export async function getUserProfile(req: Request<any, any, any, getUserProfileDto>, res: Response) {
+    const userId = req.query.userId;
+
+    try {
+        const userProfile = await user.findOne({ _id: userId }).select('email username role displayname bio');
+
+        const userReviews = await review.find({ user_id: userId })
+            .populate({
+                path: 'movie_id',
+                select: 'title status total_episode'
+            })
+            .select('rating reviewText');
+
+        if (userProfile) {
+            if (userReviews.length > 0) {
+                res.status(200).json({ userProfile, userReviews });
+            } else {
+                res.status(200).json({ userProfile, msg: "no reviews yet" });
+            }
+        } else {
+            res.status(400).json({ msg: "Cannot find user" });
+        }
+    } catch (e: unknown) {
+        if (e instanceof Error) {
+            console.error(e.message);
+        } else {
+            console.error("Unknown error", e);
+        }
+        res.status(500).json({ msg: "Something went wrong" });
+    }
 }
