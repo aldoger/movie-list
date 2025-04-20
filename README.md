@@ -25,8 +25,6 @@ Guest
 
 ## Postman Collection
 
-You can access and test the API using the following Postman collection:
-
 [Postman Collection - Movie List ](https://documenter.getpostman.com/view/36968510/2sB2cd6Jp2)
 
 
