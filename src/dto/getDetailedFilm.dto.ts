@@ -5,5 +5,7 @@ export interface getDetailedFilmDto {
 
 export interface advanceSearchFilmDto {
     movie_name: string;
-    genre: string[];
+    genres?: string[];
+    status?: "not_yet_aired" | "airing" | "finished_airing";
+    total_episode?: number;
 }

@@ -1,12 +1,12 @@
 import {  Request, Response } from "express";
 import { userSignInDto } from "../dto/userSignIn.dto";
 import { userLogInDto } from "../dto/userLogIn.dto";
-import user, { User } from "../Model/user";
+import user from "../Model/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ObjectId } from "mongoose";
 import { getUserProfileDto } from "../dto/getUserProfile.dto";
-import review, { Review } from "../Model/review";
+import review from "../Model/review";
 
 
 export async function signIn(req: Request<any, any, userSignInDto>, res: Response) {

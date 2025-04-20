@@ -7,6 +7,7 @@ import { editFilmListStatusDto } from "../dto/editFilmListStatus.dto";
 import { ObjectId } from "mongoose";
 import review from "../Model/review";
 import { advanceSearchFilmDto, getDetailedFilmDto } from "../dto/getDetailedFilm.dto";
+import genre from "../Model/genre";
 
 export async function addFilm(
   req: Request<any, any, addFilmDto>,
@@ -135,10 +136,50 @@ export async function getDetailedFilm(req: Request<any, any, getDetailedFilmDto>
   }
 }
 
-export async function advanceSearchFilm(req: Request<any, any, advanceSearchFilmDto>, res: Response) {
-  try{
+export async function advanceSearchFilm(req: Request<any, any, any, advanceSearchFilmDto>, res: Response) {
+  try {
+    const { movie_name, genres, total_episode, status } = req.query;
 
-  }catch(e: unknown){
+    const query: any = {};
+
+    // Title (partial match)
+    if (movie_name) {
+      query.title = { $regex: new RegExp(movie_name, 'i') };
+    }
+
+    // Genre (case-insensitive lookup)
+    if (genres) {
+      const genreList = Array.isArray(genres) ? genres : [genres];
+      const genreDocs = await genre.find({
+        genre: { $in: genreList.map(g => new RegExp(`^${g}$`, 'i')) }
+      });
+
+      const genreIds = genreDocs.map(g => g._id);
+      query.genres = { $in: genreIds };
+    }
+
+    // Total episode (less than or equal)
+    if (total_episode) {
+      const total = total_episode;
+      if (!isNaN(total)) {
+        query.total_episode = { $lte: total };
+      }
+    }
+
+    // Status (direct match)
+    if (status) {
+      query.status = status;
+    }
+
+    const moviesAdvance = await film.find(query).populate("genres");
+
+    if (moviesAdvance.length > 0) {
+      res.status(200).json({ moviesAdvance });
+    } else {
+      res.status(404).json({ msg: "No movies found with the given criteria." });
+    }
+
+  } catch (e: unknown) {
     if (e instanceof Error) {
       console.error(e.message);
     } else {
