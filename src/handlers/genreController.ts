@@ -59,7 +59,7 @@ export async function getAllGenre(req: Request, res: Response){
 
 export async function editGenre(req: Request<any, any, editGenreDto>, res: Response) {
   const id = req.body.genreId
-
+  console.log(id);
   try{
     const Genre = await genre.findById(id).exec();
 
