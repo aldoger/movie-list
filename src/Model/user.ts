@@ -13,9 +13,9 @@ const userSchema = new Schema<User>({
     email: { type: String, required: true, immutable: true, unique: true },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ["admin", "user"], required: true },
-    displayname: { type: String, required: false },
-    bio: { type: String, required: false },
+    role: { type: String, enum: ["admin", "user"], required: true, default: "user" },
+    displayname: { type: String, required: false, default: null },
+    bio: { type: String, required: false, default: null },
 });
 
 const user = model<User>("User", userSchema);

@@ -104,7 +104,7 @@ export async function getFilm(req: Request, res: Response) {
 export async function getDetailedFilm(req: Request<any, any, getDetailedFilmDto>, res: Response) {
   const movieName = req.query.movie_name;
   try {
-    const movie = await film.findOne({ title: movieName });
+    const movie = await film.findOne({ title: movieName }).populate("genres");
 
     if (!movie) {
       res.status(404).json({ msg: "Movie not found" });

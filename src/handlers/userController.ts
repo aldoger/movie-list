@@ -7,12 +7,13 @@ import jwt from "jsonwebtoken";
 import { ObjectId } from "mongoose";
 import { getUserProfileDto } from "../dto/getUserProfile.dto";
 import review from "../Model/review";
+import { userEditProfile } from "../dto/userEditProfile.dto";
 
 
 export async function signIn(req: Request<any, any, userSignInDto>, res: Response) {
-    const { email, username, password, role } = req.body;
+    const { email, username, password } = req.body;
 
-    if(!email || !username || !password || !role){
+    if(!email || !username || !password ){
         res.status(400).json(
             { msg: "Cannot send empty values." }
         );
@@ -28,9 +29,6 @@ export async function signIn(req: Request<any, any, userSignInDto>, res: Respons
             email: email,
             username: username,
             password: hashpassword,
-            role: role,
-            displayname: null,
-            bio: null,
         });
 
         const result = await newUser.save();
@@ -150,11 +148,16 @@ export async function getUserProfile(req: Request<any, any, any, getUserProfileD
         const userProfile = await user.findOne({ _id: userId }).select('email username role displayname bio');
 
         const userReviews = await review.find({ user_id: userId })
-            .populate({
-                path: 'movie_id',
-                select: 'title status total_episode'
-            })
-            .select('rating reviewText');
+        .populate({
+            path: 'movie_list_id',
+            match: { visibility: 'public' },
+            select: '_id status' 
+        })
+        .populate({
+            path: 'movie_id',
+            select: 'title status total_episode'
+        })
+        .select('rating reviewText');
 
         if (userProfile) {
             if (userReviews.length > 0) {
@@ -172,5 +175,33 @@ export async function getUserProfile(req: Request<any, any, any, getUserProfileD
             console.error("Unknown error", e);
         }
         res.status(500).json({ msg: "Something went wrong" });
+    }
+}
+
+
+export async function editProfile(req: Request<any, any, userEditProfile>, res: Response) {
+    const { bio, displayname } = req.body;
+    const id = (req as any).userId;
+
+    try{
+        const userProfile = await user.findById(id);
+        if(userProfile){
+            userProfile.bio = bio;
+            userProfile.displayname = displayname;
+
+            userProfile.save();
+            res.status(200).json({ msg: "Succesffuly change bio and displayname"});
+            return;
+        }else{
+            res.status(400).json({ msg: "Cannot find user"});
+            return;
+        }
+    }catch(e){
+        if (e instanceof Error) {
+            console.error(e.message);
+          } else {
+            console.error("Unknown error", e);
+          }
+          res.status(500).json({ msg: "Something went wrong" });
     }
 }
